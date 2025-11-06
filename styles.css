@@ -266,45 +266,14 @@ body {
 }
 
 .appliance-icon {
-    font-size: 1.5rem;
-    color: var(--primary-color);
+    font-size: 2rem;
+    filter: grayscale(0.3);
     transition: var(--transition);
-    font-weight: 300;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    overflow: hidden;
-}
-
-.appliance-icon::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s;
 }
 
 .appliance-card:hover .appliance-icon {
-    background: var(--bg-gradient);
-    color: var(--bg-white);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: transparent;
-}
-
-.appliance-card:hover .appliance-icon::before {
-    opacity: 1;
+    filter: grayscale(0);
+    transform: scale(1.1);
 }
 
 .appliance-header h3 {
@@ -378,6 +347,15 @@ body {
     border-radius: 1rem;
     position: relative;
     overflow: hidden;
+}
+
+.peak-hours-card::before {
+    content: '⏰';
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 3rem;
+    opacity: 0.1;
 }
 
 .peak-hours-card h4 {
@@ -545,6 +523,15 @@ body {
     border: 2px solid rgba(99, 102, 241, 0.2);
     position: relative;
     overflow: hidden;
+}
+
+.solar-usage-estimate::before {
+    content: '☀️';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 5rem;
+    opacity: 0.1;
 }
 
 .estimate-header {
@@ -1000,6 +987,16 @@ select:focus {
     overflow: hidden;
 }
 
+.payback-period::before {
+    content: '⚡';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+    font-size: 4rem;
+    opacity: 0.1;
+}
+
 .payback-period strong {
     display: block;
     margin-bottom: 0.75rem;
@@ -1153,28 +1150,15 @@ select:focus {
 }
 
 .benefit-icon {
-    font-size: 2rem;
+    font-size: 3rem;
     margin-bottom: 1.5rem;
+    filter: grayscale(0.3);
     transition: var(--transition);
-    color: var(--primary-color);
-    width: 80px;
-    height: 80px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-    border: 2px solid rgba(99, 102, 241, 0.15);
-    box-shadow: var(--shadow-sm);
-    font-weight: 300;
 }
 
 .benefit-card:hover .benefit-icon {
-    background: var(--bg-gradient);
-    color: var(--bg-white);
-    transform: translateY(-8px) scale(1.05);
-    box-shadow: var(--shadow-lg);
-    border-color: transparent;
+    filter: grayscale(0);
+    transform: scale(1.15) rotateY(180deg);
 }
 
 .benefit-card h3 {
