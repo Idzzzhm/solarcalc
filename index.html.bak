@@ -324,16 +324,8 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="solar-usage-estimate">
-                            <div class="estimate-header">
-                                <span>☀️ Estimated Direct Solar Usage:</span>
-                                <span class="value solar" id="directSolarPercent">0%</span>
-                            </div>
-                            <p class="estimate-note">Based on typical appliance usage patterns during solar generation hours (8am-6pm)</p>
-                        </div>
                         
-                        <button class="btn-use-calculation" id="useCalculation">Use These Values ↓</button>
+                        <button class="btn-use-calculation" id="useCalculation">Use This Bill Amount ↓</button>
                     </div>
                 </div>
             </div>

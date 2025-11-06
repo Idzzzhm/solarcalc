@@ -1,6 +1,45 @@
-// Solar Calculator Logic - Full JavaScript Implementation
+// Solar Calculator Logic
 class SolarCalculator {
     constructor() {
+        this.initializeElements();
+        this.bindEvents();
+        this.calculate();
+    }
+
+    initializeElements() {
+        // Input elements
+        this.monthlyBillInput = document.getElementById('monthlyBill');
+        this.monthlyBillSlider = document.getElementById('monthlyBillSlider');
+        this.directUsageInput = document.getElementById('directUsage');
+        this.directUsageSlider = document.getElementById('directUsageSlider');
+        this.systemTypeSelect = document.getElementById('systemType');
+        this.systemSizeInput = document.getElementById('systemSize');
+        this.systemSizeSlider = document.getElementById('systemSizeSlider');
+
+        // Display elements
+        this.totalUsageDisplay = document.getElementById('totalUsage');
+        this.solarUsageDisplay = document.getElementById('solarUsage');
+        this.numPanelsDisplay = document.getElementById('numPanels');
+        this.solarGenerationDisplay = document.getElementById('solarGeneration');
+        this.currentBillDisplay = document.getElementById('currentBill');
+        this.billAfterSolarDisplay = document.getElementById('billAfterSolar');
+        this.monthlySavingsDisplay = document.getElementById('monthlySavings');
+        this.annualSavingsDisplay = document.getElementById('annualSavings');
+        this.tenYearSavingsDisplay = document.getElementById('tenYearSavings');
+        this.systemCostDisplay = document.getElementById('systemCost');
+        this.discountedCostDisplay = document.getElementById('discountedCost');
+        this.paybackPeriodDisplay = document.getElementById('paybackPeriod');
+
+        // Appliance calculator elements
+        this.applianceQtyInputs = document.querySelectorAll('.appliance-qty');
+        this.applianceHoursInputs = document.querySelectorAll('.appliance-hours');
+        this.dailyKwhUsageDisplay = document.getElementById('dailyKwhUsage');
+        this.dailyBillDisplay = document.getElementById('dailyBill');
+        this.totalKwhUsageDisplay = document.getElementById('totalKwhUsage');
+        this.estimatedBillDisplay = document.getElementById('estimatedBill');
+        this.directSolarPercentDisplay = document.getElementById('directSolarPercent');
+        this.useCalculationBtn = document.getElementById('useCalculation');
+
         // Constants
         this.ELECTRICITY_RATE = 0.2185; // RM per kWh (average TNB rate)
         this.SOLAR_GENERATION_FACTOR = 102.5; // kWh per kWp per month (Malaysia average)
@@ -9,7 +48,7 @@ class SolarCalculator {
         this.ATAP_DISCOUNT = 500; // RM discount
         this.EXPORT_RATE = 0.20; // RM per kWh for exported electricity
 
-        // Appliance power ratings (Watts)
+        // Appliance power ratings (in Watts)
         this.APPLIANCE_POWER = {
             led: 10,
             fan: 75,
@@ -25,200 +64,161 @@ class SolarCalculator {
             router: 10
         };
 
-        this.initializeElements();
-        this.bindEvents();
-        this.calculate();
-        this.calculateApplianceUsage();
-    }
-
-    initializeElements() {
-        // Solar Calculator Input elements
-        this.monthlyBillInput = document.getElementById('monthlyBill');
-        this.monthlyBillSlider = document.getElementById('monthlyBillSlider');
-        this.directUsageInput = document.getElementById('directUsage');
-        this.directUsageSlider = document.getElementById('directUsageSlider');
-        this.systemTypeSelect = document.getElementById('systemType');
-        this.systemSizeInput = document.getElementById('systemSize');
-        this.systemSizeSlider = document.getElementById('systemSizeSlider');
-
-        // Solar Calculator Display elements
-        this.totalUsageDisplay = document.getElementById('totalUsage');
-        this.solarGenerationDisplay = document.getElementById('solarGeneration');
-        this.numPanelsDisplay = document.getElementById('numPanels');
-        this.currentBillDisplay = document.getElementById('currentBill');
-        this.billAfterSolarDisplay = document.getElementById('billAfterSolar');
-        this.monthlySavingsDisplay = document.getElementById('monthlySavings');
-        this.annualSavingsDisplay = document.getElementById('annualSavings');
-        this.tenYearSavingsDisplay = document.getElementById('tenYearSavings');
-        this.systemCostDisplay = document.getElementById('systemCost');
-        this.discountedCostDisplay = document.getElementById('discountedCost');
-        this.paybackPeriodDisplay = document.getElementById('paybackPeriod');
-
-        // Payment options
-        this.fullPaymentDisplay = document.getElementById('fullPayment');
-        this.threeYearDisplay = document.getElementById('threeYearPayment');
-        this.fiveYearDisplay = document.getElementById('fiveYearPayment');
-
-        // Appliance calculator elements
-        this.applianceQtyInputs = document.querySelectorAll('.appliance-qty');
-        this.applianceHoursInputs = document.querySelectorAll('.appliance-hours');
-        this.appliancePeakHoursInputs = document.querySelectorAll('.appliance-peak-hours');
-        this.dailyKwhUsageDisplay = document.getElementById('dailyKwhUsage');
-        this.dailyBillDisplay = document.getElementById('dailyBill');
-        this.totalKwhUsageDisplay = document.getElementById('totalKwhUsage');
-        this.estimatedBillDisplay = document.getElementById('estimatedBill');
-        this.directSolarPercentDisplay = document.getElementById('directSolarPercent');
-        this.useCalculationBtn = document.getElementById('useCalculation');
-
-        // Peak hours configuration
-        this.solarStartTime = document.getElementById('solarStartTime');
-        this.solarEndTime = document.getElementById('solarEndTime');
-        this.solarDuration = document.getElementById('solarDuration');
+        // Typical percentage of usage during solar hours (8am-6pm) for each appliance
+        // Based on common Malaysian household patterns
+        this.SOLAR_HOUR_USAGE_PERCENT = {
+            led: 10,        // Mostly used at night
+            fan: 70,        // Used throughout the day
+            ac: 60,         // Daytime and evening use
+            fridge: 42,     // 24/7 device, ~10hrs of 24hrs is during solar
+            tv: 30,         // Mostly evening use
+            washer: 80,     // Usually used during daytime
+            heater: 20,     // Morning and evening showers
+            microwave: 60,  // Lunch and some breakfast/dinner prep
+            computer: 70,   // Work from home during day
+            kettle: 50,     // Morning and afternoon tea
+            iron: 70,       // Usually done during daytime
+            router: 42      // 24/7 device, ~10hrs of 24hrs is during solar
+        };
     }
 
     bindEvents() {
-        // Solar Calculator: Sync number inputs with sliders
-        if (this.monthlyBillInput && this.monthlyBillSlider) {
-            this.monthlyBillInput.addEventListener('input', () => this.syncSlider('monthlyBill'));
-            this.monthlyBillSlider.addEventListener('input', () => this.syncInput('monthlyBill'));
-        }
+        // Sync number inputs with sliders
+        this.monthlyBillInput.addEventListener('input', (e) => {
+            this.monthlyBillSlider.value = e.target.value;
+            this.updateSliderBackground(this.monthlyBillSlider);
+            this.calculate();
+        });
 
-        if (this.directUsageInput && this.directUsageSlider) {
-            this.directUsageInput.addEventListener('input', () => this.syncSlider('directUsage'));
-            this.directUsageSlider.addEventListener('input', () => this.syncInput('directUsage'));
-        }
+        this.monthlyBillSlider.addEventListener('input', (e) => {
+            this.monthlyBillInput.value = e.target.value;
+            this.updateSliderBackground(e.target);
+            this.calculate();
+        });
 
-        if (this.systemSizeInput && this.systemSizeSlider) {
-            this.systemSizeInput.addEventListener('input', () => this.syncSlider('systemSize'));
-            this.systemSizeSlider.addEventListener('input', () => this.syncInput('systemSize'));
-        }
+        this.directUsageInput.addEventListener('input', (e) => {
+            this.directUsageSlider.value = e.target.value;
+            this.updateSliderBackground(this.directUsageSlider);
+            this.calculate();
+        });
 
-        // System type change
-        if (this.systemTypeSelect) {
-            this.systemTypeSelect.addEventListener('change', () => {
-                this.updateSystemLimits();
-                this.calculate();
-            });
-        }
+        this.directUsageSlider.addEventListener('input', (e) => {
+            this.directUsageInput.value = e.target.value;
+            this.updateSliderBackground(e.target);
+            this.calculate();
+        });
 
-        // Appliance calculator inputs
+        this.systemSizeInput.addEventListener('input', (e) => {
+            this.systemSizeSlider.value = e.target.value;
+            this.updateSliderBackground(this.systemSizeSlider);
+            this.calculate();
+        });
+
+        this.systemSizeSlider.addEventListener('input', (e) => {
+            this.systemSizeInput.value = e.target.value;
+            this.updateSliderBackground(e.target);
+            this.calculate();
+        });
+
+        this.systemTypeSelect.addEventListener('change', () => {
+            this.updateSystemLimits();
+            this.calculate();
+        });
+
+        // Appliance calculator events
         this.applianceQtyInputs.forEach(input => {
-            input.addEventListener('input', () => this.calculateApplianceUsage());
+            input.addEventListener('input', () => this.calculateFromAppliances());
         });
 
         this.applianceHoursInputs.forEach(input => {
-            input.addEventListener('input', () => this.calculateApplianceUsage());
+            input.addEventListener('input', () => this.calculateFromAppliances());
         });
 
-        this.appliancePeakHoursInputs.forEach(input => {
-            input.addEventListener('input', () => this.calculateApplianceUsage());
+        this.useCalculationBtn.addEventListener('click', () => {
+            this.transferApplianceCalculation();
         });
 
-        // Peak hours configuration
-        if (this.solarStartTime && this.solarEndTime) {
-            this.solarStartTime.addEventListener('change', () => this.updateSolarDuration());
-            this.solarEndTime.addEventListener('change', () => this.updateSolarDuration());
-        }
+        // Initialize slider backgrounds
+        this.updateSliderBackground(this.monthlyBillSlider);
+        this.updateSliderBackground(this.directUsageSlider);
+        this.updateSliderBackground(this.systemSizeSlider);
 
-        // Use calculation button
-        if (this.useCalculationBtn) {
-            this.useCalculationBtn.addEventListener('click', () => this.transferToSolarCalculator());
-        }
-    }
-
-    syncSlider(name) {
-        const input = document.getElementById(name);
-        const slider = document.getElementById(name + 'Slider');
-        if (input && slider) {
-            slider.value = input.value;
-            this.updateSliderBackground(slider);
-            this.calculate();
-        }
-    }
-
-    syncInput(name) {
-        const input = document.getElementById(name);
-        const slider = document.getElementById(name + 'Slider');
-        if (input && slider) {
-            input.value = slider.value;
-            this.updateSliderBackground(slider);
-            this.calculate();
-        }
-    }
-
-    updateSliderBackground(slider) {
-        const min = parseFloat(slider.min) || 0;
-        const max = parseFloat(slider.max) || 100;
-        const value = parseFloat(slider.value);
-        const percentage = ((value - min) / (max - min)) * 100;
-        
-        slider.style.background = `linear-gradient(to right, #6366F1 0%, #6366F1 ${percentage}%, #E5E7EB ${percentage}%, #E5E7EB 100%)`;
+        // Calculate appliances on init
+        this.calculateFromAppliances();
     }
 
     updateSystemLimits() {
         const systemType = this.systemTypeSelect.value;
-        const maxSize = systemType === 'single' ? 7.14 : 16.32;
+        const maxKwp = systemType === 'single' ? 7.14 : 16.32;
         
-        if (this.systemSizeInput) {
-            this.systemSizeInput.max = maxSize;
-            if (parseFloat(this.systemSizeInput.value) > maxSize) {
-                this.systemSizeInput.value = maxSize;
-            }
-        }
+        this.systemSizeInput.max = maxKwp;
+        this.systemSizeSlider.max = maxKwp;
         
-        if (this.systemSizeSlider) {
-            this.systemSizeSlider.max = maxSize;
-            if (parseFloat(this.systemSizeSlider.value) > maxSize) {
-                this.systemSizeSlider.value = maxSize;
-            }
-            this.updateSliderBackground(this.systemSizeSlider);
+        // Adjust current value if it exceeds new max
+        if (parseFloat(this.systemSizeInput.value) > maxKwp) {
+            this.systemSizeInput.value = maxKwp;
+            this.systemSizeSlider.value = maxKwp;
         }
+    }
+
+    updateSliderBackground(slider) {
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
+        const value = parseFloat(slider.value);
+        const percentage = ((value - min) / (max - min)) * 100;
+        
+        slider.style.background = `linear-gradient(to right, var(--primary-color) 0%, var(--primary-color) ${percentage}%, var(--border-color) ${percentage}%, var(--border-color) 100%)`;
     }
 
     calculate() {
         // Get input values
-        const monthlyBill = parseFloat(this.monthlyBillInput?.value) || 300;
-        const directUsagePercent = parseFloat(this.directUsageInput?.value) || 65;
-        const systemSize = parseFloat(this.systemSizeInput?.value) || 5;
+        const monthlyBill = parseFloat(this.monthlyBillInput.value);
+        const directUsagePercent = parseFloat(this.directUsageInput.value);
+        const systemSize = parseFloat(this.systemSizeInput.value);
 
-        // Calculate total usage from bill (simplified tiered tariff)
-        const totalUsage = monthlyBill / this.ELECTRICITY_RATE;
-
+        // Calculate total usage from bill
+        const totalUsageKwh = this.calculateUsageFromBill(monthlyBill);
+        
         // Calculate solar generation
-        const solarGeneration = systemSize * this.SOLAR_GENERATION_FACTOR;
-
-        // Calculate number of panels
-        const numPanels = Math.ceil((systemSize * 1000) / this.PANEL_POWER);
-
-        // Calculate direct usage and export
-        const directUsageKwh = (directUsagePercent / 100) * solarGeneration;
-        const exportKwh = solarGeneration - directUsageKwh;
-
+        const solarGenerationKwh = systemSize * this.SOLAR_GENERATION_FACTOR;
+        
+        // Calculate direct solar usage
+        const directSolarUsageKwh = (directUsagePercent / 100) * solarGenerationKwh;
+        
+        // Calculate exported solar
+        const exportedSolarKwh = solarGenerationKwh - directSolarUsageKwh;
+        
         // Calculate savings
-        const directSavings = directUsageKwh * this.ELECTRICITY_RATE;
-        const exportSavings = Math.min(exportKwh * this.EXPORT_RATE, monthlyBill * 0.6);
-        let monthlySavings = directSavings + exportSavings;
-
-        // Ensure savings don't exceed the bill
-        if (monthlySavings > monthlyBill) {
-            monthlySavings = monthlyBill;
-        }
-
-        const billAfterSolar = monthlyBill - monthlySavings;
+        const directUsageSavings = directSolarUsageKwh * this.ELECTRICITY_RATE;
+        const exportSavings = Math.min(exportedSolarKwh * this.EXPORT_RATE, monthlyBill * 0.6); // Cap at 60% of energy charges
+        const monthlySavings = directUsageSavings + exportSavings;
+        
+        // Calculate bill after solar
+        const billAfterSolar = Math.max(monthlyBill - monthlySavings, 0);
+        
+        // Calculate annual and 10-year savings
         const annualSavings = monthlySavings * 12;
         const tenYearSavings = annualSavings * 10;
-
-        // Calculate costs
+        
+        // Calculate system costs
         const systemCost = systemSize * this.COST_PER_KWP;
         const discountedCost = systemCost - this.ATAP_DISCOUNT;
-
+        
         // Calculate payback period
-        const paybackPeriod = monthlySavings > 0 ? discountedCost / (monthlySavings * 12) : 0;
-
+        const paybackYears = discountedCost / annualSavings;
+        
+        // Calculate number of panels
+        const numPanels = Math.ceil((systemSize * 1000) / this.PANEL_POWER);
+        
+        // Calculate recommended system size
+        const recommendedSize = this.calculateRecommendedSize(totalUsageKwh, directUsagePercent);
+        const isRecommended = Math.abs(systemSize - recommendedSize) < 0.5;
+        
         // Update displays
         this.updateDisplays({
-            totalUsage,
-            solarGeneration,
+            totalUsageKwh,
+            directSolarUsageKwh: (directUsagePercent / 100) * totalUsageKwh,
+            solarGenerationKwh,
             numPanels,
             monthlyBill,
             billAfterSolar,
@@ -227,129 +227,149 @@ class SolarCalculator {
             tenYearSavings,
             systemCost,
             discountedCost,
-            paybackPeriod
+            paybackYears,
+            isRecommended
         });
     }
 
-    updateDisplays(data) {
-        if (this.totalUsageDisplay) this.totalUsageDisplay.textContent = this.formatNumber(data.totalUsage, 0);
-        if (this.solarGenerationDisplay) this.solarGenerationDisplay.textContent = this.formatNumber(data.solarGeneration, 0);
-        if (this.numPanelsDisplay) this.numPanelsDisplay.textContent = data.numPanels;
-        if (this.currentBillDisplay) this.currentBillDisplay.textContent = this.formatCurrency(data.monthlyBill);
-        if (this.billAfterSolarDisplay) this.billAfterSolarDisplay.textContent = this.formatCurrency(data.billAfterSolar);
-        if (this.monthlySavingsDisplay) this.monthlySavingsDisplay.textContent = this.formatCurrency(data.monthlySavings);
-        if (this.annualSavingsDisplay) this.annualSavingsDisplay.textContent = this.formatCurrency(data.annualSavings);
-        if (this.tenYearSavingsDisplay) this.tenYearSavingsDisplay.textContent = this.formatCurrency(data.tenYearSavings);
-        if (this.systemCostDisplay) this.systemCostDisplay.textContent = this.formatCurrency(data.systemCost);
-        if (this.discountedCostDisplay) this.discountedCostDisplay.textContent = this.formatCurrency(data.discountedCost);
-        if (this.paybackPeriodDisplay) this.paybackPeriodDisplay.textContent = this.formatNumber(data.paybackPeriod, 1);
-
-        // Update payment options
-        if (this.fullPaymentDisplay) this.fullPaymentDisplay.textContent = this.formatNumber(data.discountedCost, 0);
-        if (this.threeYearDisplay) this.threeYearDisplay.textContent = this.formatNumber(data.discountedCost / 36, 0);
-        if (this.fiveYearDisplay) this.fiveYearDisplay.textContent = this.formatNumber(data.discountedCost / 60, 0);
+    calculateUsageFromBill(bill) {
+        // Simplified TNB tariff calculation (reverse engineering from bill)
+        // Real tariff is tiered, but this is a reasonable approximation
+        return bill / this.ELECTRICITY_RATE;
     }
 
-    calculateApplianceUsage() {
-        let dailyKwh = 0;
-        let solarKwh = 0;
+    calculateRecommendedSize(totalUsageKwh, directUsagePercent) {
+        // Recommend a system that covers about 80% of usage
+        // Accounting for direct usage efficiency
+        const targetGeneration = totalUsageKwh * 0.8;
+        const adjustedForDirectUsage = targetGeneration / (directUsagePercent / 100 + 0.3); // Factor in export
+        return Math.min(adjustedForDirectUsage / this.SOLAR_GENERATION_FACTOR, 16.32);
+    }
 
-        // Calculate for each appliance
+    updateDisplays(data) {
+        // Format and update all display elements
+        this.totalUsageDisplay.textContent = `${this.formatNumber(data.totalUsageKwh)} kWh`;
+        this.solarUsageDisplay.textContent = `${this.formatNumber(data.directSolarUsageKwh)} kWh`;
+        this.solarGenerationDisplay.textContent = `${this.formatNumber(data.solarGenerationKwh)} kWh/month`;
+        this.numPanelsDisplay.textContent = data.numPanels;
+        
+        this.currentBillDisplay.textContent = `RM ${this.formatCurrency(data.monthlyBill)}`;
+        this.billAfterSolarDisplay.textContent = `RM ${this.formatCurrency(data.billAfterSolar)}`;
+        this.monthlySavingsDisplay.textContent = `RM ${this.formatCurrency(data.monthlySavings)}`;
+        this.annualSavingsDisplay.textContent = `RM ${this.formatCurrency(data.annualSavings)}`;
+        this.tenYearSavingsDisplay.textContent = `RM ${this.formatCurrency(data.tenYearSavings)}`;
+        
+        this.systemCostDisplay.textContent = `RM ${this.formatCurrency(data.systemCost)}`;
+        this.discountedCostDisplay.textContent = `RM ${this.formatCurrency(data.discountedCost)}`;
+        
+        this.paybackPeriodDisplay.textContent = `${data.paybackYears.toFixed(1)} years`;
+        
+        // Update recommended badge
+        const badge = document.getElementById('recommendedBadge');
+        if (data.isRecommended) {
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    formatNumber(num, decimals = 0) {
+        if (decimals > 0) {
+            return num.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+        return Math.round(num).toLocaleString('en-MY');
+    }
+
+    formatCurrency(num) {
+        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    calculateFromAppliances() {
+        let totalDailyKwh = 0;
+        let solarHourKwh = 0;
+
+        // Calculate for each appliance type
         this.applianceQtyInputs.forEach(input => {
             const appliance = input.dataset.appliance;
             const qty = parseFloat(input.value) || 0;
             const hoursInput = document.querySelector(`.appliance-hours[data-appliance="${appliance}"]`);
-            const peakHoursInput = document.querySelector(`.appliance-peak-hours[data-appliance="${appliance}"]`);
+            const hoursPerDay = parseFloat(hoursInput.value) || 0;
             
-            const hours = parseFloat(hoursInput?.value) || 0;
-            const peakHours = parseFloat(peakHoursInput?.value) || 0;
-            const power = this.APPLIANCE_POWER[appliance] || 0;
+            // Get power rating for this appliance
+            const powerWatts = this.APPLIANCE_POWER[appliance] || 0;
+            
+            // Calculate daily kWh: (Watts × Quantity × Hours/day) / 1000
+            const dailyKwh = (powerWatts * qty * hoursPerDay) / 1000;
+            totalDailyKwh += dailyKwh;
 
-            // Calculate daily consumption
-            const applianceDailyKwh = (power * qty * hours) / 1000;
-            dailyKwh += applianceDailyKwh;
-
-            // Calculate solar hour usage
-            const applianceSolarKwh = (power * qty * peakHours) / 1000;
-            solarKwh += applianceSolarKwh;
+            // Calculate kWh used during solar hours based on typical patterns
+            const solarUsagePercent = this.SOLAR_HOUR_USAGE_PERCENT[appliance] || 40;
+            const applianceSolarKwh = dailyKwh * (solarUsagePercent / 100);
+            solarHourKwh += applianceSolarKwh;
         });
 
         // Calculate monthly values
-        const monthlyKwh = dailyKwh * 30;
-        const dailyBill = dailyKwh * this.ELECTRICITY_RATE;
-        const monthlyBill = monthlyKwh * this.ELECTRICITY_RATE;
+        const totalMonthlyKwh = totalDailyKwh * 30;
+        
+        // Calculate bills
+        const dailyBill = totalDailyKwh * this.ELECTRICITY_RATE;
+        const monthlyBill = totalMonthlyKwh * this.ELECTRICITY_RATE;
 
-        // Calculate direct solar percentage
-        const solarPercent = dailyKwh > 0 ? (solarKwh / dailyKwh) * 100 : 0;
+        // Calculate direct solar usage percentage
+        // This represents how much of the total daily usage happens during solar generation hours
+        const directSolarPercent = totalDailyKwh > 0 ? (solarHourKwh / totalDailyKwh) * 100 : 0;
 
         // Update displays
-        if (this.dailyKwhUsageDisplay) this.dailyKwhUsageDisplay.textContent = this.formatNumber(dailyKwh, 2);
-        if (this.dailyBillDisplay) this.dailyBillDisplay.textContent = this.formatNumber(dailyBill, 2);
-        if (this.totalKwhUsageDisplay) this.totalKwhUsageDisplay.textContent = this.formatNumber(monthlyKwh, 2);
-        if (this.estimatedBillDisplay) this.estimatedBillDisplay.textContent = this.formatNumber(monthlyBill, 2);
-        if (this.directSolarPercentDisplay) this.directSolarPercentDisplay.textContent = this.formatNumber(solarPercent, 1);
+        this.dailyKwhUsageDisplay.textContent = `${this.formatNumber(totalDailyKwh, 2)} kWh`;
+        this.dailyBillDisplay.textContent = `RM ${this.formatCurrency(dailyBill)}`;
+        this.totalKwhUsageDisplay.textContent = `${this.formatNumber(totalMonthlyKwh)} kWh`;
+        this.estimatedBillDisplay.textContent = `RM ${this.formatCurrency(monthlyBill)}`;
+        this.directSolarPercentDisplay.textContent = `${Math.round(directSolarPercent)}%`;
+
+        // Store for transfer
+        this.calculatedBill = monthlyBill;
+        this.calculatedKwh = totalMonthlyKwh;
+        this.calculatedDailyKwh = totalDailyKwh;
+        this.calculatedDirectSolarPercent = Math.round(directSolarPercent);
     }
 
-    updateSolarDuration() {
-        if (!this.solarStartTime || !this.solarEndTime || !this.solarDuration) return;
-
-        const start = this.solarStartTime.value.split(':');
-        const end = this.solarEndTime.value.split(':');
-
-        const startMinutes = parseInt(start[0]) * 60 + parseInt(start[1]);
-        const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
-
-        let duration = (endMinutes - startMinutes) / 60;
-        if (duration < 0) duration += 24;
-
-        this.solarDuration.textContent = `${duration.toFixed(1)} hours`;
-    }
-
-    transferToSolarCalculator() {
-        const monthlyBill = parseFloat(this.estimatedBillDisplay?.textContent) || 300;
-        const solarPercent = parseFloat(this.directSolarPercentDisplay?.textContent) || 65;
-
-        if (this.monthlyBillInput) {
-            this.monthlyBillInput.value = monthlyBill;
-            this.monthlyBillSlider.value = monthlyBill;
+    transferApplianceCalculation() {
+        if (this.calculatedBill > 0) {
+            // Update monthly bill inputs
+            this.monthlyBillInput.value = Math.round(this.calculatedBill);
+            this.monthlyBillSlider.value = Math.round(this.calculatedBill);
             this.updateSliderBackground(this.monthlyBillSlider);
+            
+            // Update direct solar usage percentage
+            if (this.calculatedDirectSolarPercent) {
+                this.directUsageInput.value = this.calculatedDirectSolarPercent;
+                this.directUsageSlider.value = this.calculatedDirectSolarPercent;
+                this.updateSliderBackground(this.directUsageSlider);
+            }
+            
+            // Recalculate solar savings
+            this.calculate();
+            
+            // Scroll to solar calculator section
+            document.getElementById('calculator').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            // Visual feedback
+            this.useCalculationBtn.textContent = '✓ Applied! Scroll Down';
+            setTimeout(() => {
+                this.useCalculationBtn.textContent = 'Use These Values ↓';
+            }, 2000);
         }
-
-        if (this.directUsageInput) {
-            this.directUsageInput.value = solarPercent;
-            this.directUsageSlider.value = solarPercent;
-            this.updateSliderBackground(this.directUsageSlider);
-        }
-
-        this.calculate();
-
-        // Smooth scroll to calculator
-        const calculatorSection = document.getElementById('calculator');
-        if (calculatorSection) {
-            calculatorSection.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-
-    formatNumber(number, decimals = 2) {
-        return number.toLocaleString('en-MY', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-        });
-    }
-
-    formatCurrency(amount, decimals = 2) {
-        return amount.toLocaleString('en-MY', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-        });
     }
 }
 
-// Initialize calculator when DOM is loaded
+// Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     new SolarCalculator();
-
-    // Smooth scroll for anchor links
+    
+    // Add smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -361,36 +381,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-    });
-
-    // Initialize slider backgrounds
-    document.querySelectorAll('input[type="range"]').forEach(slider => {
-        const min = parseFloat(slider.min) || 0;
-        const max = parseFloat(slider.max) || 100;
-        const value = parseFloat(slider.value);
-        const percentage = ((value - min) / (max - min)) * 100;
-        slider.style.background = `linear-gradient(to right, #6366F1 0%, #6366F1 ${percentage}%, #E5E7EB ${percentage}%, #E5E7EB 100%)`;
-    });
-
-    // Add animation on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.appliance-card, .benefit-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
     });
 });
