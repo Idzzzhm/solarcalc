@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Savings Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1>☀️ Solar Savings</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#calculator">Calculator</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact" class="btn-primary">Get Quote</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Calculate Your Solar Savings</h2>
+                <p>See how much you can save with solar energy in just a few clicks</p>
+            </div>
+        </section>
+
+        <!-- Appliance Calculator Section -->
+        <section id="appliance-calculator" class="appliance-calculator-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>⚡ Calculate Your Electricity Usage</h2>
+                    <p>Select your appliances and hours of use to estimate your monthly kWh consumption</p>
+                </div>
+
+                <div class="peak-hours-config">
+                    <div class="peak-hours-card">
+                        <h4>☀️ Solar Peak Hours Configuration</h4>
+                        <p class="help-text">Define when your appliances run during solar generation hours (typically 8am-6pm)</p>
+                        <div class="peak-input-group">
+                            <div class="peak-input-item">
+                                <label>Solar Start Time:</label>
+                                <input type="time" id="solarStartTime" value="08:00">
+                            </div>
+                            <div class="peak-input-item">
+                                <label>Solar End Time:</label>
+                                <input type="time" id="solarEndTime" value="18:00">
+                            </div>
+                            <div class="peak-input-item peak-duration">
+                                <label>Solar Generation Hours:</label>
+                                <span id="solarDuration" class="duration-value">10 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="appliances-grid">
+                    <!-- Lighting -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">💡</span>
+                            <h3>LED Bulbs</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="led" value="10" min="0" max="50">
+                            </div>
+                            <div class="input-row">
+                                <label>Total hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="led" value="5" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="input-row">
+                                <label>During solar hours:</label>
+                                <input type="number" class="appliance-peak-hours" data-appliance="led" value="1" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">10W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Ceiling Fan -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">🌀</span>
+                            <h3>Ceiling Fan</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="fan" value="4" min="0" max="20">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="fan" value="8" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">75W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Air Conditioner -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">❄️</span>
+                            <h3>Air Conditioner</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="ac" value="2" min="0" max="10">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="ac" value="6" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">1000W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Refrigerator -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">🧊</span>
+                            <h3>Refrigerator</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="fridge" value="1" min="0" max="5">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="fridge" value="24" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">150W each</div>
+                        </div>
+                    </div>
+
+                    <!-- TV -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">📺</span>
+                            <h3>Television</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="tv" value="2" min="0" max="10">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="tv" value="4" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">100W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Washing Machine -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">🧺</span>
+                            <h3>Washing Machine</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="washer" value="1" min="0" max="5">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="washer" value="1" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">500W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Water Heater -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">🚿</span>
+                            <h3>Water Heater</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="heater" value="1" min="0" max="5">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="heater" value="1" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">2000W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Microwave -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">🔥</span>
+                            <h3>Microwave</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="microwave" value="1" min="0" max="3">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="microwave" value="0.5" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">1200W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Computer/Laptop -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">💻</span>
+                            <h3>Computer/Laptop</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="computer" value="2" min="0" max="10">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="computer" value="6" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">150W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Electric Kettle -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">☕</span>
+                            <h3>Electric Kettle</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="kettle" value="1" min="0" max="3">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="kettle" value="0.5" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">1500W each</div>
+                        </div>
+                    </div>
+
+                    <!-- Iron -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">👔</span>
+                            <h3>Iron</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="iron" value="1" min="0" max="3">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="iron" value="0.5" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">1000W each</div>
+                        </div>
+                    </div>
+
+                    <!-- WiFi Router -->
+                    <div class="appliance-card">
+                        <div class="appliance-header">
+                            <span class="appliance-icon">📡</span>
+                            <h3>WiFi Router</h3>
+                        </div>
+                        <div class="appliance-inputs">
+                            <div class="input-row">
+                                <label>Quantity:</label>
+                                <input type="number" class="appliance-qty" data-appliance="router" value="1" min="0" max="5">
+                            </div>
+                            <div class="input-row">
+                                <label>Hours/day:</label>
+                                <input type="number" class="appliance-hours" data-appliance="router" value="24" min="0" max="24" step="0.5">
+                            </div>
+                            <div class="appliance-power">10W each</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="appliance-summary">
+                    <div class="summary-card">
+                        <h3>📊 Usage Summary</h3>
+                        
+                        <div class="usage-tabs">
+                            <div class="usage-column daily">
+                                <h4>Daily Usage</h4>
+                                <div class="summary-row">
+                                    <span>kWh per day:</span>
+                                    <span class="value" id="dailyKwhUsage">0</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Daily Cost:</span>
+                                    <span class="value" id="dailyBill">RM 0.00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="usage-divider"></div>
+                            
+                            <div class="usage-column monthly">
+                                <h4>Monthly Usage</h4>
+                                <div class="summary-row">
+                                    <span>kWh per month:</span>
+                                    <span class="value" id="totalKwhUsage">0</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Monthly Bill:</span>
+                                    <span class="value highlight" id="estimatedBill">RM 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-use-calculation" id="useCalculation">Use This Bill Amount ↓</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="calculator-section">
+            <div class="container">
+                <div class="calculator-wrapper">
+                    <!-- Input Section -->
+                    <div class="calculator-inputs">
+                        <h3>Your Current Energy Usage</h3>
+                        
+                        <div class="input-group">
+                            <label for="monthlyBill">Current Monthly Bill (RM)</label>
+                            <div class="input-with-slider">
+                                <input type="number" id="monthlyBill" value="500" min="100" max="3000" step="10">
+                                <input type="range" id="monthlyBillSlider" value="500" min="100" max="3000" step="10">
+                            </div>
+                            <div class="input-info">
+                                <span class="info-label">Total Usage:</span>
+                                <span id="totalUsage" class="info-value">1,048 kWh</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="directUsage">
+                                Direct Solar Usage (%)
+                                <span class="info-icon" title="Solar generated between 8am–6pm that is used directly in your home">ℹ️</span>
+                            </label>
+                            <div class="input-with-slider">
+                                <input type="number" id="directUsage" value="25" min="0" max="40" step="1">
+                                <input type="range" id="directUsageSlider" value="25" min="0" max="40" step="1">
+                            </div>
+                            <div class="input-info">
+                                <span class="info-label">Solar Usage:</span>
+                                <span id="solarUsage" class="info-value">262 kWh</span>
+                            </div>
+                            <div class="usage-guide">
+                                <p><strong>Usage Guide:</strong></p>
+                                <ul>
+                                    <li>&lt; RM300: 0-15%</li>
+                                    <li>RM300-500: 15-25%</li>
+                                    <li>RM500-900: 20-30%</li>
+                                    <li>RM900+: 25-40%</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="systemType">Home Electrical System</label>
+                            <select id="systemType">
+                                <option value="single">Single Phase (Max 7.14 kWp)</option>
+                                <option value="three" selected>Three Phase (Max 16.32 kWp)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="systemSize">
+                                System Size (kWp)
+                                <span class="recommended-badge" id="recommendedBadge">Recommended</span>
+                            </label>
+                            <div class="input-with-slider">
+                                <input type="number" id="systemSize" value="13.26" min="3" max="16.32" step="0.01">
+                                <input type="range" id="systemSizeSlider" value="13.26" min="3" max="16.32" step="0.01">
+                            </div>
+                            <div class="system-info">
+                                <div class="info-row">
+                                    <span class="info-label">No. of Panels:</span>
+                                    <span id="numPanels" class="info-value">26</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Solar Generation:</span>
+                                    <span id="solarGeneration" class="info-value">1,359 kWh/month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="calculator-results">
+                        <h3>Your Savings Summary</h3>
+                        
+                        <div class="savings-card">
+                            <div class="savings-row">
+                                <span>Current TNB Bill</span>
+                                <span class="amount" id="currentBill">RM 500.00</span>
+                            </div>
+                            <div class="savings-row">
+                                <span>TNB Bill After Solar</span>
+                                <span class="amount" id="billAfterSolar">RM 158.66</span>
+                            </div>
+                            <div class="savings-row highlight">
+                                <span>Monthly Savings</span>
+                                <span class="amount savings" id="monthlySavings">RM 341.13</span>
+                            </div>
+                            <div class="savings-row">
+                                <span>Annual Savings</span>
+                                <span class="amount" id="annualSavings">RM 4,093.56</span>
+                            </div>
+                            <div class="savings-row">
+                                <span>10-Year Savings</span>
+                                <span class="amount total" id="tenYearSavings">RM 40,935.60</span>
+                            </div>
+                        </div>
+
+                        <div class="pricing-section">
+                            <h4>Pricing & Purchase Options</h4>
+                            
+                            <div class="system-cost">
+                                <div class="cost-row">
+                                    <span>System Cost</span>
+                                    <span class="price" id="systemCost">RM 31,400.00</span>
+                                </div>
+                                <div class="cost-row discount">
+                                    <span>After Solar ATAP Discount</span>
+                                    <span class="price" id="discountedCost">RM 30,900.00</span>
+                                </div>
+                            </div>
+
+                            <div class="purchase-options">
+                                <div class="purchase-option">
+                                    <h5>5 Year Plan</h5>
+                                    <p class="price-large">RM 515.00<span>/month</span></p>
+                                    <p class="small-text">One-Time Fee: WAIVED</p>
+                                </div>
+                                <div class="purchase-option">
+                                    <h5>10 Year Plan</h5>
+                                    <p class="price-large">RM 257.50<span>/month</span></p>
+                                    <p class="small-text">One-Time Fee: RM 4,500.00</p>
+                                </div>
+                                <div class="purchase-option">
+                                    <h5>Outright Purchase</h5>
+                                    <p class="price-large">RM 30,900.00</p>
+                                    <p class="small-text">7.5% Cash Discount Available</p>
+                                    <p class="small-text">0% EPP up to 60 months</p>
+                                </div>
+                            </div>
+
+                            <div class="payback-period">
+                                <strong>Estimated Payback Period:</strong>
+                                <span id="paybackPeriod">7.5 years</span>
+                            </div>
+                        </div>
+
+                        <button class="btn-cta">Get Your Free Quote</button>
+                        
+                        <div class="disclaimer">
+                            <p><strong>Important Notes:</strong></p>
+                            <ul>
+                                <li>All figures are estimates based on current tariff rates</li>
+                                <li>Savings are highly dependent on usage patterns</li>
+                                <li>Solar generation varies by roof design, tilt, and orientation</li>
+                                <li>Calculations exclude Automatic Fuel Adjustment (AFA)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2>Why Choose Solar?</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💰</div>
+                        <h3>Save Money</h3>
+                        <p>Reduce your electricity bills by up to 70% with solar energy</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🌍</div>
+                        <h3>Go Green</h3>
+                        <p>Reduce your carbon footprint and help protect the environment</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📈</div>
+                        <h3>Increase Value</h3>
+                        <p>Boost your property value with a modern solar installation</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚡</div>
+                        <h3>Energy Independence</h3>
+                        <p>Generate your own clean electricity and reduce grid dependence</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="container">
+            <p>&copy; 2025 Solar Savings Calculator. All rights reserved.</p>
+            <p>Contact us: <a href="mailto:info@solarsavings.com">info@solarsavings.com</a></p>
+        </div>
+    </footer>
+
+    <script src="calculator.js"></script>
+</body>
+</html>
